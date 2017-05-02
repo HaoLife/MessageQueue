@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Rainbow.MessageQueue.Ring
 {
-    public interface IRingQueue<TMessage>
+    public interface IRingBuffer<TMessage>
     {
         WrapMessage<TMessage> this[long sequence] { get; }
         int Size { get; }

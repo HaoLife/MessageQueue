@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Rainbow.MessageQueue.Ring
 {
-    public class MultiSequencer : ISequencer
+    public class MultiSequencer : Sequencer
     {
 
         //队列使用情况标记，每过一轮+1
@@ -13,22 +13,15 @@ namespace Rainbow.MessageQueue.Ring
         private readonly int _indexMask;
         //位移数量值，如1移1位，2移2位，4移3位，8移4位以此类推
         private readonly int _indexShift;
-        //队列大小
-        private readonly int _size;
         //消费者最小消费的序列缓存值
         private Sequence _sequenceCache = new Sequence();
-        //当前生产者生产的序列值
-        private Sequence _sequence = new Sequence();
-        //序列闸门，用来限制可进行生产的序列
-        private List<ISequence> _gatingSequences;
 
-        public MultiSequencer(int size)
+        public MultiSequencer(int bufferSize, IWaitStrategy waitStrategy)
+            : base(bufferSize, waitStrategy)
         {
-            this._availableBuffer = new int[size];
-            this._size = size;
-            this._indexMask = size - 1;
-            this._indexShift = RingUtil.Log2(size);
-            this._gatingSequences = new List<ISequence>();
+            this._availableBuffer = new int[bufferSize];
+            this._indexMask = bufferSize - 1;
+            this._indexShift = Util.Log2(bufferSize);
             InitialiseAvailableBuffer();
         }
 
@@ -75,17 +68,12 @@ namespace Rainbow.MessageQueue.Ring
         }
         #endregion
 
-        public long Current => _sequence.Value;
-
-        public int BufferSize => _size;
-
-
-        public long Next()
+        public override long Next()
         {
             return Next(1);
         }
 
-        public long Next(int n)
+        public override long Next(int n)
         {
 
             if (n < 1)
@@ -96,20 +84,20 @@ namespace Rainbow.MessageQueue.Ring
             long current;
             long next;
 
-            var spinWait = default(SpinWait);
+            var spinWait = new SpinWait();
             do
             {
                 current = _sequence.Value;
                 next = current + n;
 
-                long offsetSequence = next - _size;
+                long offsetSequence = next - _bufferSize;
                 long cachedGatingSequence = _sequenceCache.Value;
 
                 //获取队列长度与当前处理值比较，如果没有超过，为可用
                 if (offsetSequence > cachedGatingSequence || cachedGatingSequence > current)
                 {
                     //询问消费者已经处理的最小的序列是多少，并进行设置
-                    long gatingSequence = RingUtil.GetMinimum(this._gatingSequences, current);
+                    long gatingSequence = Util.GetMinimum(this._gatingSequences, current);
 
                     if (offsetSequence > gatingSequence)
                     {
@@ -129,12 +117,12 @@ namespace Rainbow.MessageQueue.Ring
             return next;
         }
 
-        public void Publish(long sequence)
+        public override void Publish(long sequence)
         {
             SetAvailable(sequence);
         }
 
-        public void Publish(long lo, long hi)
+        public override void Publish(long lo, long hi)
         {
             for (long l = lo; l <= hi; l++)
             {
@@ -142,7 +130,7 @@ namespace Rainbow.MessageQueue.Ring
             }
         }
 
-        public long GetUseSequence(long lo, long hi)
+        public override long GetAvailableSequence(long lo, long hi)
         {
             for (long sequence = lo; sequence <= hi; sequence++)
             {
@@ -153,16 +141,6 @@ namespace Rainbow.MessageQueue.Ring
             }
 
             return hi;
-        }
-
-        public void AddGatingSequences(params ISequence[] gatingSequences)
-        {
-            _gatingSequences.AddRange(gatingSequences);
-        }
-
-        public ISequenceBarrier NewBarrier(params ISequence[] sequencesToTrack)
-        {
-            return new SequenceBarrier(this, _sequence, sequencesToTrack);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Rainbow.MessageQueue.Ring
             this._sequences = sequences;
         }
 
-        public long Value => RingUtil.GetMinimum(_sequences);
+        public long Value => Util.GetMinimum(_sequences);
 
         public bool CompareAndSet(long expectedSequence, long nextSequence)
         {

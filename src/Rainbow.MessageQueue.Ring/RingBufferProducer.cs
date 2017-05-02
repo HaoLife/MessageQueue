@@ -3,10 +3,10 @@ using System.Linq;
 
 namespace Rainbow.MessageQueue.Ring
 {
-    public class QueueProducer<TMessage> : IQueueProducer<TMessage>
+    public class RingBufferProducer<TMessage> : IRingBufferProducer<TMessage>
     {
-        private readonly IRingQueue<TMessage> _ringQueue;
-        public QueueProducer(IRingQueue<TMessage> ringQueue)
+        private readonly IRingBuffer<TMessage> _ringQueue;
+        public RingBufferProducer(IRingBuffer<TMessage> ringQueue)
         {
             this._ringQueue = ringQueue;
         }

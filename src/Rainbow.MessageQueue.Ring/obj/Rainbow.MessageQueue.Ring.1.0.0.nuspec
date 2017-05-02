@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Rainbow.MessageQueue.Ring</id>
+    <version>1.0.0</version>
+    <authors>Rainbow.MessageQueue.Ring</authors>
+    <owners>Rainbow.MessageQueue.Ring</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Package Description</description>
+    <dependencies>
+      <group targetFramework=".NETStandard1.3">
+        <dependency id="NETStandard.Library" version="1.6.1" exclude="Build,Analyzers" />
+        <dependency id="System.Threading.Thread" version="4.3.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="/Users/liuhao/Desktop/git/MessageQueue/src/Rainbow.MessageQueue.Ring/bin/Debug/netstandard1.3/Rainbow.MessageQueue.Ring.dll" target="lib/netstandard1.3/Rainbow.MessageQueue.Ring.dll" />
+  </files>
+</package>

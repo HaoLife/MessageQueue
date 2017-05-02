@@ -7,7 +7,7 @@ namespace Rainbow.MessageQueue.Ring
         long Next(int n);
         void Publish(long sequence);
         void Publish(long lo, long hi);
-        long GetUseSequence(long lo, long hi);
+        long GetAvailableSequence(long lo, long hi);
         void AddGatingSequences(params ISequence[] gatingSequences);
         ISequenceBarrier NewBarrier(params ISequence[] sequencesToTrack);
     }

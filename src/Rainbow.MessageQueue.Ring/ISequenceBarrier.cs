@@ -5,5 +5,13 @@ namespace Rainbow.MessageQueue.Ring
         long WaitFor(long sequence);
 
         long Cursor { get; }
+
+        bool IsAlerted { get; }
+
+        void Alert();
+
+        void ClearAlert();
+
+        void CheckAlert();
     }
 }

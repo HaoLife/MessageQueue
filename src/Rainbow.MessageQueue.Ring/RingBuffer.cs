@@ -1,40 +1,51 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Rainbow.MessageQueue.Ring
 {
-    public class RingQueue<TMessage> : IRingQueue<TMessage>
+    public class RingBuffer<TMessage> : IRingBuffer<TMessage>
     {
 
         #region 内部类成员
 
+
+        [StructLayout(LayoutKind.Explicit, Size = 135)]
         private struct RingBufferFields
         {
+            //易变
+            [FieldOffset(56)]
             public object[] Data;
+
+            //不变
+            [FieldOffset(64)]
             public int Size;
+
+            [FieldOffset(68)]
             public int IndexMask;
+
+            [FieldOffset(72)]
+            public ISequencer Sequencer;
 
         }
         #endregion
 
         private RingBufferFields _value;
-        private readonly ISequencer _sequencer;
 
-
-        public RingQueue(ISequencer sequencer)
+        public RingBuffer(ISequencer sequencer)
         {
             this._value.Size = sequencer.BufferSize;
-            
+
             if (this._value.Size < 1)
             {
                 throw new ArgumentException("bufferSize must not be less than 1");
             }
-            if (RingUtil.CeilingNextPowerOfTwo(this._value.Size) != this._value.Size)
+            if (Util.CeilingNextPowerOfTwo(this._value.Size) != this._value.Size)
                 throw new ArgumentException("bufferSize must be a power of 2");
 
             this._value.IndexMask = sequencer.BufferSize - 1;
-            this._sequencer = sequencer;
+            this._value.Sequencer = sequencer;
             Fill();
         }
 
@@ -58,32 +69,32 @@ namespace Rainbow.MessageQueue.Ring
 
         public long Next()
         {
-            return this._sequencer.Next();
+            return this._value.Sequencer.Next();
         }
 
         public void Publish(long sequence)
         {
-            this._sequencer.Publish(sequence);
+            this._value.Sequencer.Publish(sequence);
         }
 
         public long Next(int n)
         {
-            return this._sequencer.Next(n);
+            return this._value.Sequencer.Next(n);
         }
 
         public void Publish(long lo, long hi)
         {
-            this._sequencer.Publish(lo, hi);
+            this._value.Sequencer.Publish(lo, hi);
         }
 
         public void AddGatingSequences(params ISequence[] gatingSequences)
         {
-            this._sequencer.AddGatingSequences(gatingSequences);
+            this._value.Sequencer.AddGatingSequences(gatingSequences);
         }
 
         public ISequenceBarrier NewBarrier(params ISequence[] sequencesToTrack)
         {
-            return this._sequencer.NewBarrier(sequencesToTrack);
+            return this._value.Sequencer.NewBarrier(sequencesToTrack);
         }
 
     }

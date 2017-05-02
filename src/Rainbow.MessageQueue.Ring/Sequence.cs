@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace Rainbow.MessageQueue.Ring
@@ -24,8 +25,12 @@ namespace Rainbow.MessageQueue.Ring
             _fields.Value = value;
         }
 
+        [StructLayout(LayoutKind.Explicit, Size = 120)]
         private struct Fields
         {
+            //左右偏移一个缓存行，不被其他缓存命中
+            //56 = 32 + 24=(32-long(8))
+            [FieldOffset(56)]
             public long Value;
 
             public Fields(long value)

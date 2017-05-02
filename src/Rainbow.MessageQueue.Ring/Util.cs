@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Rainbow.MessageQueue.Ring
 {
-    public class RingUtil
+    public class Util
     {
         public static int Log2(int i)
         {

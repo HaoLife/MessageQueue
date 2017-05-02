@@ -1,0 +1,6 @@
+/Users/liuhao/Desktop/git/MessageQueue/src/Rainbow.MessageQueue.Ring/bin/Debug/netstandard1.3/Rainbow.MessageQueue.Ring.deps.json
+/Users/liuhao/Desktop/git/MessageQueue/src/Rainbow.MessageQueue.Ring/bin/Debug/netstandard1.3/Rainbow.MessageQueue.Ring.dll
+/Users/liuhao/Desktop/git/MessageQueue/src/Rainbow.MessageQueue.Ring/bin/Debug/netstandard1.3/Rainbow.MessageQueue.Ring.pdb
+/Users/liuhao/Desktop/git/MessageQueue/src/Rainbow.MessageQueue.Ring/obj/Debug/netstandard1.3/Rainbow.MessageQueue.Ring.AssemblyInfo.cs
+/Users/liuhao/Desktop/git/MessageQueue/src/Rainbow.MessageQueue.Ring/obj/Debug/netstandard1.3/Rainbow.MessageQueue.Ring.dll
+/Users/liuhao/Desktop/git/MessageQueue/src/Rainbow.MessageQueue.Ring/obj/Debug/netstandard1.3/Rainbow.MessageQueue.Ring.pdb
