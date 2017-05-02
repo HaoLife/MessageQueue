@@ -1,0 +1,8 @@
+.vs/
+.vscode/
+**/bin
+**/obj
+**/project.lock.json
+**/wwwroot
+**/Migrations
+**/Logs
