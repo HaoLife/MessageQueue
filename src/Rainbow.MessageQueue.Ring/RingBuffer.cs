@@ -97,5 +97,9 @@ namespace Rainbow.MessageQueue.Ring
             return this._value.Sequencer.NewBarrier(sequencesToTrack);
         }
 
+        public bool IsUsed(long sequence)
+        {
+            return this._value.Sequencer.IsUsed(sequence);
+        }
     }
 }
