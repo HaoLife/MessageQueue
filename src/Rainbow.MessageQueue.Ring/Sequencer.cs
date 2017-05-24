@@ -44,6 +44,8 @@ namespace Rainbow.MessageQueue.Ring
 
         public abstract long GetAvailableSequence(long lo, long hi);
 
+        public abstract bool IsUsed(long sequence);
+
         public void AddGatingSequences(params ISequence[] gatingSequences)
         {
             _gatingSequences.AddRange(gatingSequences);

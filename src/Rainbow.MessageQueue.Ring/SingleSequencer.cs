@@ -24,7 +24,7 @@ namespace Rainbow.MessageQueue.Ring
 
 
         private Fields _fields = new Fields(Sequence.InitialCursorValue, Sequence.InitialCursorValue);
-        
+
         public SingleSequencer(int bufferSize, IWaitStrategy waitStrategy)
             : base(bufferSize, waitStrategy)
         {
@@ -34,6 +34,12 @@ namespace Rainbow.MessageQueue.Ring
         public override long GetAvailableSequence(long lo, long hi)
         {
             return hi;
+        }
+
+
+        public override bool IsUsed(long sequence)
+        {
+            return sequence <= _fields.NextValue;
         }
 
         public override long Next()
