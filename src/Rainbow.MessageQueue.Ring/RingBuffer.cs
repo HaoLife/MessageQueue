@@ -7,30 +7,6 @@ namespace Rainbow.MessageQueue.Ring
 {
     public class RingBuffer<TMessage> : IRingBuffer<TMessage>
     {
-
-        #region 内部类成员
-
-
-        [StructLayout(LayoutKind.Explicit, Size = 135)]
-        private struct RingBufferFields
-        {
-            //易变
-            [FieldOffset(56)]
-            public object[] Data;
-
-            //不变
-            [FieldOffset(64)]
-            public int Size;
-
-            [FieldOffset(68)]
-            public int IndexMask;
-
-            [FieldOffset(72)]
-            public ISequencer Sequencer;
-
-        }
-        #endregion
-
         private RingBufferFields _value;
 
         public RingBuffer(ISequencer sequencer)
