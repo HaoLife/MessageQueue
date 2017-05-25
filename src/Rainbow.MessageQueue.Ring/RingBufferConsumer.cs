@@ -54,7 +54,7 @@ namespace Rainbow.MessageQueue.Ring
 
                     if (nextSequence <= availableSequence)
                     {
-                        TMessage[] messages = new TMessage[availableSequence - nextSequence];
+                        TMessage[] messages = new TMessage[availableSequence - nextSequence + 1];
                         var temp = nextSequence;
                         while (nextSequence <= availableSequence)
                         {
