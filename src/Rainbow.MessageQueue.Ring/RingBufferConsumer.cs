@@ -44,11 +44,13 @@ namespace Rainbow.MessageQueue.Ring
                 throw new InvalidOperationException("Thread is already running");
             }
 
+            _sequenceBarrier.ClearAlert();
+            var nextSequence = _current.Value + 1L;
+
             while (true)
             {
                 try
                 {
-                    var nextSequence = _current.Value + 1L;
                     var availableSequence = _sequenceBarrier.WaitFor(nextSequence);
                     availableSequence = availableSequence > nextSequence + _maxHandleSize ? nextSequence + _maxHandleSize : availableSequence;
 
@@ -66,9 +68,17 @@ namespace Rainbow.MessageQueue.Ring
                     }
                     _current.SetValue(availableSequence);
                 }
+                catch (AlertException)
+                {
+                    if (_running == 0)
+                    {
+                        break;
+                    }
+                }
                 catch (Exception ex)
                 {
-                    break;
+                    _current.SetValue(nextSequence);
+                    nextSequence++;
                 }
             }
         }

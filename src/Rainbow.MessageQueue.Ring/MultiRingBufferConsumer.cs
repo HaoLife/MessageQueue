@@ -5,7 +5,6 @@ namespace Rainbow.MessageQueue.Ring
 {
     public class MultiRingBufferConsumer<TMessage> : IRingBufferConsumer
     {
-
         private volatile int _running;
         private readonly IRingBuffer<TMessage>[] _messageBuffers;
         private readonly ISequenceBarrier[] _sequenceBarriers;
@@ -56,46 +55,51 @@ namespace Rainbow.MessageQueue.Ring
             if (Interlocked.Exchange(ref _running, 1) != 0)
                 throw new InvalidOperationException("Thread is already running");
 
-
             var barrierLength = _sequenceBarriers.Length;
-
+            var currentBarrierIndex = 0;
+            long nextSequence = -1;
             while (true)
             {
                 try
                 {
                     for (var i = 0; i < barrierLength; i++)
                     {
+                        currentBarrierIndex = i;
                         var availableSequence = _sequenceBarriers[i].WaitFor(-1);
                         var sequence = _sequences[i];
 
-                        var nextSequence = sequence.Value + 1;
-
-                        availableSequence = availableSequence > nextSequence + _maxHandleSize ? nextSequence + _maxHandleSize : availableSequence;
-
-
-                        if (nextSequence <= availableSequence)
+                        while (availableSequence > (nextSequence = sequence.Value + 1))
                         {
-                            TMessage[] messages = new TMessage[availableSequence - nextSequence];
+                            var maxSequence = availableSequence > nextSequence + _maxHandleSize ? nextSequence + _maxHandleSize : availableSequence;
 
-                            for (var l = nextSequence; l <= availableSequence; l++)
+                            if (nextSequence <= maxSequence)
                             {
-                                var evt = _messageBuffers[i][l].Value;
-                                messages[l - nextSequence] = evt;
-                            }
-                            this._batchMessageHandler.Handle(messages);
-                        }
+                                TMessage[] messages = new TMessage[maxSequence - nextSequence];
 
-                        sequence.SetValue(availableSequence);
+                                for (var l = nextSequence; l <= maxSequence; l++)
+                                {
+                                    var evt = _messageBuffers[i][l].Value;
+                                    messages[l - nextSequence] = evt;
+                                }
+                                this._batchMessageHandler.Handle(messages);
+                            }
+
+                            sequence.SetValue(maxSequence);
+                        }
 
                         _count += availableSequence - nextSequence + 1;
                     }
                 }
-                catch (TimeoutException e)
+                catch (AlertException)
                 {
+                    if (_running == 0)
+                    {
+                        break;
+                    }
                 }
                 catch (Exception e)
                 {
-                    break;
+                    _sequences[currentBarrierIndex].SetValue(nextSequence);
                 }
             }
         }
