@@ -70,11 +70,7 @@ namespace Rainbow.MessageQueue.Ring
 
                         while (availableSequence > (nextSequence = sequence.Value + 1))
                         {
-<<<<<<< HEAD
                             var maxSequence = availableSequence > nextSequence + _maxHandleSize ? nextSequence + _maxHandleSize : availableSequence;
-=======
-                            TMessage[] messages = new TMessage[availableSequence - nextSequence + 1];
->>>>>>> 5d8b24e09fbce8e120de9ede5b2cb7a4dd65baa7
 
                             if (nextSequence <= maxSequence)
                             {
