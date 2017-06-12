@@ -37,11 +37,6 @@ namespace Rainbow.MessageQueue.Ring
         }
 
 
-        public override bool IsUsed(long sequence)
-        {
-            return sequence <= _fields.NextValue;
-        }
-
         public override long Next()
         {
             return Next(1);

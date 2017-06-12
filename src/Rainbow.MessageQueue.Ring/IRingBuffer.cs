@@ -11,6 +11,5 @@ namespace Rainbow.MessageQueue.Ring
         void Publish(long sequence);
         void Publish(long lo, long hi);
         ISequenceBarrier NewBarrier(params ISequence[] sequencesToTrack);
-        bool IsUsed(long sequence);
     }
 }

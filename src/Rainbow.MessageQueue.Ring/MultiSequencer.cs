@@ -143,13 +143,5 @@ namespace Rainbow.MessageQueue.Ring
             return hi;
         }
 
-        public override bool IsUsed(long sequence)
-        {
-            int index = CalculateIndex(sequence);
-            int flag = CalculateAvailabilityFlag(sequence);
-            return Volatile.Read(ref _availableBuffer[index]) >= flag;
-
-        }
-
     }
 }
