@@ -2,6 +2,6 @@ namespace Rainbow.MessageQueue.Ring
 {
     public interface IMessageHandler<TMessage>
     {
-        void Handle(TMessage[] messages);
+        void Handle(TMessage message, long sequence, bool endOfBatch);
     }
 }

@@ -10,19 +10,14 @@ namespace Rainbow.MessageQueue.Ring
         private readonly ISequenceBarrier[] _sequenceBarriers;
         private readonly IMessageHandler<TMessage> _batchMessageHandler;
         private readonly Sequence[] _sequences;
-        private readonly int _maxHandleSize;
         private long _count;
 
-        private const int _defaultMaxHandleSize = 100;
 
         public MultiRingBufferConsumer(
             IRingBuffer<TMessage>[] messageBuffers,
             ISequenceBarrier[] sequenceBarriers,
-            IMessageHandler<TMessage> batchMessageHandler,
-            int maxHandleSize = _defaultMaxHandleSize)
+            IMessageHandler<TMessage> batchMessageHandler)
         {
-            if (maxHandleSize < 0) throw new ArgumentException($"{nameof(maxHandleSize)} must greater than 0", nameof(maxHandleSize));
-
             this._messageBuffers = messageBuffers;
             this._sequenceBarriers = sequenceBarriers;
             this._batchMessageHandler = batchMessageHandler;
@@ -70,21 +65,15 @@ namespace Rainbow.MessageQueue.Ring
 
                         while (availableSequence > (nextSequence = sequence.Value + 1))
                         {
-                            var maxSequence = availableSequence > nextSequence + _maxHandleSize ? nextSequence + _maxHandleSize : availableSequence;
+                            // var maxSequence = availableSequence > nextSequence + _maxHandleSize ? nextSequence + _maxHandleSize : availableSequence;
 
-                            if (nextSequence <= maxSequence)
+                            while (nextSequence <= availableSequence)
                             {
-                                TMessage[] messages = new TMessage[maxSequence - nextSequence];
-
-                                for (var l = nextSequence; l <= maxSequence; l++)
-                                {
-                                    var evt = _messageBuffers[i][l].Value;
-                                    messages[l - nextSequence] = evt;
-                                }
-                                this._batchMessageHandler.Handle(messages);
+                                this._batchMessageHandler.Handle(_messageBuffers[i][nextSequence].Value, nextSequence, nextSequence == availableSequence);
+                                nextSequence++;
                             }
 
-                            sequence.SetValue(maxSequence);
+                            sequence.SetValue(nextSequence);
                         }
 
                         _count += availableSequence - nextSequence + 1;
