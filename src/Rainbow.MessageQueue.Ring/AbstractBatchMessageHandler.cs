@@ -7,15 +7,32 @@ namespace Rainbow.MessageQueue.Ring
         IBatchMessageHandler<TMessage>
         , IMessageHandler<TMessage>
     {
-        private List<TMessage> _temps = new List<TMessage>();
+        private static int defaultMaxCache = 5000;
+
+        private List<TMessage> _temps;
+        private int maxCache;
+        public AbstractBatchMessageHandler()
+            : this(defaultMaxCache)
+        {
+
+        }
+        public AbstractBatchMessageHandler(int maxCache)
+        {
+            this.maxCache = maxCache;
+            this._temps = new List<TMessage>(this.maxCache);
+        }
+
 
         public abstract void Handle(TMessage[] messages, long endSequence);
 
         public void Handle(TMessage message, long sequence, bool endOfBatch)
         {
-            if (!endOfBatch) _temps.Add(message);
-            this.Handle(_temps.ToArray(), sequence);
-            _temps.Clear();
+            _temps.Add(message);
+            if (endOfBatch || _temps.Count >= maxCache)
+            {
+                this.Handle(_temps.ToArray(), sequence);
+                _temps.Clear();
+            }
         }
     }
 }

@@ -53,18 +53,6 @@ namespace Rainbow.MessageQueue.Ring
                         nextSequence++;
                     }
 
-                    // if (nextSequence <= availableSequence)
-                    // {
-                    //     TMessage[] messages = new TMessage[availableSequence - nextSequence + 1];
-                    //     var temp = nextSequence;
-                    //     while (nextSequence <= availableSequence)
-                    //     {
-                    //         var evt = _messageBuffer[nextSequence].Value;
-                    //         messages[nextSequence - temp] = evt;
-                    //         nextSequence++;
-                    //     }
-                    //     this._batchMessageHandler.Handle(messages);
-                    // }
                     _current.SetValue(availableSequence);
                 }
                 catch (AlertException)
